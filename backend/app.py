@@ -56,6 +56,10 @@ def create_app():
         db.create_all()
         _seed_admin()
 
+    @app.route('/')
+    def home():
+        return "🚀 Cloudonomix Backend is Running!"
+    
     return app
 
 def _abort_missing(key):
