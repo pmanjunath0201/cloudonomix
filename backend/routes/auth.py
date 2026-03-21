@@ -57,13 +57,17 @@ def register():
     except Exception as e:
         print(f"[Auth] Trial creation failed: {e}")
 
-    # Send verification email
-    try:
-        from services.email_service import generate_verification_token, send_verification_email
-        token = generate_verification_token(d['email'])
-        send_verification_email(d['email'], d['name'], token)
-    except Exception as e:
-        print(f"[Auth] Email send failed: {e}")
+    # Send verification email in background thread — never block registration
+    def _send_verification():
+        try:
+            from services.email_service import generate_verification_token, send_verification_email
+            token = generate_verification_token(d['email'])
+            send_verification_email(d['email'], d['name'], token)
+        except Exception as e:
+            print(f"[Auth] Email send failed: {e}")
+
+    import threading
+    threading.Thread(target=_send_verification, daemon=True).start()
 
     return jsonify({
         'message': 'Account created! Please check your email to verify your account.',
@@ -96,12 +100,15 @@ def verify_email():
     user.verified_at  = datetime.utcnow()
     db.session.commit()
 
-    # Send welcome email
-    try:
-        from services.email_service import send_welcome_email
-        send_welcome_email(email, user.name, user.tenant.name)
-    except Exception as e:
-        print(f"[Auth] Welcome email failed: {e}")
+    # Send welcome email in background
+    def _send_welcome():
+        try:
+            from services.email_service import send_welcome_email
+            send_welcome_email(email, user.name, user.tenant.name)
+        except Exception as e:
+            print(f"[Auth] Welcome email failed: {e}")
+    import threading
+    threading.Thread(target=_send_welcome, daemon=True).start()
 
     token = generate_token(user.id, user.tenant_id)
     return jsonify({
@@ -120,12 +127,15 @@ def resend_verification():
         return jsonify({'error': 'Email not found'}), 404
     if user.is_verified:
         return jsonify({'message': 'Already verified. Please login.'})
-    try:
-        from services.email_service import generate_verification_token, send_verification_email
-        token = generate_verification_token(email)
-        send_verification_email(email, user.name, token)
-    except Exception as e:
-        print(f"[Auth] Resend failed: {e}")
+    def _resend():
+        try:
+            from services.email_service import generate_verification_token, send_verification_email
+            tok = generate_verification_token(email)
+            send_verification_email(email, user.name, tok)
+        except Exception as e:
+            print(f"[Auth] Resend failed: {e}")
+    import threading
+    threading.Thread(target=_resend, daemon=True).start()
     return jsonify({'message': f'Verification email resent to {email}'})
 
 # ── Login ──────────────────────────────────────────────────────────────────────
@@ -364,34 +374,37 @@ def forgot_password():
     user  = User.query.filter_by(email=email).first()
     # Always return success to prevent email enumeration
     if user:
-        try:
-            from services.email_service import generate_verification_token, _send
-            import os
-            token    = generate_verification_token(f"reset:{email}")
-            app_url  = os.getenv('APP_URL', 'http://localhost:3000')
-            reset_url= f"{app_url}/reset-password?token={token}"
-            html = f"""
-            <div style="font-family:Inter,sans-serif;max-width:520px;margin:40px auto;
-                        background:#111827;border-radius:16px;padding:36px;border:1px solid #1e2d45;">
-              <h2 style="color:#00d4ff;font-family:monospace;margin:0 0 8px;">⬡ Cloudonomix</h2>
-              <h3 style="color:#f1f5f9;margin:0 0 16px;">Reset your password</h3>
-              <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin:0 0 24px;">
-                Click the button below to reset your password. This link expires in 1 hour.
-              </p>
-              <a href="{reset_url}"
-                 style="display:inline-block;background:#00d4ff;color:#080c14;font-weight:700;
-                        font-size:14px;padding:13px 28px;border-radius:9px;text-decoration:none;
-                        font-family:monospace;">
-                Reset Password
-              </a>
-              <p style="color:#475569;font-size:12px;margin-top:20px;">
-                If you didn't request this, ignore this email. Your password won't change.
-              </p>
-            </div>
-            """
-            _send(email, "Reset your Cloudonomix password", html)
-        except Exception as e:
-            print(f"[Auth] Password reset email failed: {e}")
+        def _send_reset():
+            try:
+                from services.email_service import generate_verification_token, _send
+                import os
+                token    = generate_verification_token(f"reset:{email}")
+                app_url  = os.getenv('APP_URL', 'http://localhost:3000')
+                reset_url= f"{app_url}/reset-password?token={token}"
+                html = f"""
+                <div style="font-family:Inter,sans-serif;max-width:520px;margin:40px auto;
+                            background:#111827;border-radius:16px;padding:36px;border:1px solid #1e2d45;">
+                  <h2 style="color:#00d4ff;font-family:monospace;margin:0 0 8px;">⬡ Cloudonomix</h2>
+                  <h3 style="color:#f1f5f9;margin:0 0 16px;">Reset your password</h3>
+                  <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin:0 0 24px;">
+                    Click the button below to reset your password. This link expires in 1 hour.
+                  </p>
+                  <a href="{reset_url}"
+                     style="display:inline-block;background:#00d4ff;color:#080c14;font-weight:700;
+                            font-size:14px;padding:13px 28px;border-radius:9px;text-decoration:none;
+                            font-family:monospace;">
+                    Reset Password
+                  </a>
+                  <p style="color:#475569;font-size:12px;margin-top:20px;">
+                    If you didn't request this, ignore this email. Your password won't change.
+                  </p>
+                </div>
+                """
+                _send(email, "Reset your Cloudonomix password", html)
+            except Exception as e:
+                print(f"[Auth] Password reset email failed: {e}")
+        import threading
+        threading.Thread(target=_send_reset, daemon=True).start()
     return jsonify({'message': f'If {email} is registered, a reset link has been sent.'})
 
 @auth_bp.route('/reset-password', methods=['POST'])
