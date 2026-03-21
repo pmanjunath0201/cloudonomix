@@ -1,0 +1,72 @@
+.settings-page { max-width:800px; }
+
+.setup-banner {
+  background:rgba(0,212,255,.07); border:1px solid rgba(0,212,255,.25);
+  border-radius:11px; padding:15px 20px; font-size:13px; color:var(--t2);
+  margin-bottom:22px; line-height:1.6;
+}
+.setup-banner strong { color:var(--t1); }
+
+.cloud-status-row { display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+.csr-item {
+  display:flex; align-items:center; gap:8px; padding:9px 16px;
+  background:var(--card); border:1px solid var(--border); border-radius:9px;
+  font-size:12px; color:var(--t2); flex:1; min-width:120px; transition:all .2s;
+}
+.csr-on { color:var(--t1); }
+.csr-dot { width:8px; height:8px; border-radius:50%; background:var(--border2); flex-shrink:0; }
+.csr-status { margin-left:auto; font-family:var(--mono); font-size:11px; }
+
+.stabs { display:flex; gap:2px; margin-bottom:20px; border-bottom:1px solid var(--border); overflow-x:auto; }
+.stab {
+  padding:9px 18px; background:transparent; border:none; border-bottom:2px solid transparent;
+  color:var(--t3); cursor:pointer; font-size:13px; font-family:var(--sans);
+  font-weight:500; transition:all .15s; margin-bottom:-1px; display:flex; align-items:center; gap:7px; white-space:nowrap;
+}
+.stab:hover      { color:var(--t1); }
+.stab--active    { color:var(--cyan); border-bottom-color:var(--cyan); }
+.stab-dot        { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+.cred-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:10px; }
+.cred-header h3 { font-family:var(--mono); font-size:16px; color:var(--t1); margin-bottom:5px; }
+.status-ok  { font-size:12px; color:var(--green); font-family:var(--mono); }
+.status-no  { font-size:12px; color:var(--orange); font-family:var(--mono); }
+
+.cred-desc { font-size:13px; color:var(--t2); line-height:1.6; margin-bottom:18px; }
+
+.tip-box {
+  border-radius:10px; padding:14px 18px; font-size:12.5px; color:var(--t2);
+  margin-bottom:20px; line-height:1.8; border:1px solid;
+}
+.tip-box code { font-family:var(--mono); font-size:11.5px; padding:1px 5px; border-radius:4px; }
+.tip-aws   { border-color:rgba(255,153,0,.25);  background:rgba(255,153,0,.06);  }
+.tip-aws code   { color:var(--aws); background:rgba(255,153,0,.1); }
+.tip-gcp   { border-color:rgba(66,133,244,.25); background:rgba(66,133,244,.06); }
+.tip-gcp code   { color:var(--gcp); background:rgba(66,133,244,.1); }
+.tip-azure { border-color:rgba(0,120,212,.25);  background:rgba(0,120,212,.06);  }
+.tip-azure code { color:var(--azure); background:rgba(0,120,212,.1); }
+
+.settings-msg { border-radius:9px; padding:11px 15px; font-size:13px; margin-bottom:16px; }
+.msg-ok  { background:rgba(16,185,129,.09); border:1px solid rgba(16,185,129,.3); color:var(--green); }
+.msg-err { background:rgba(239,68,68,.09);  border:1px solid rgba(239,68,68,.3);  color:var(--red); }
+
+.cred-form { display:flex; flex-direction:column; gap:16px; }
+.fg { display:flex; flex-direction:column; gap:5px; }
+.fg label { font-size:11px; font-weight:600; color:var(--t2); text-transform:uppercase; letter-spacing:.5px; }
+.fg input, .fg select, .fg textarea {
+  background:var(--card2); border:1px solid var(--border2); color:var(--t1);
+  border-radius:9px; padding:11px 14px; font-size:13px; outline:none; transition:border-color .2s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(0,212,255,.07); }
+.fg input::placeholder, .fg textarea::placeholder { color:var(--t3); }
+.fg select option { background:var(--card2); }
+.fg textarea { resize:vertical; font-family:var(--mono); font-size:12px; line-height:1.6; }
+
+.form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media(max-width:600px) { .form-grid-2{grid-template-columns:1fr;} }
+
+.account-grid { display:flex; flex-direction:column; border:1px solid var(--border); border-radius:11px; overflow:hidden; margin-top:16px; }
+.ag-row { display:flex; justify-content:space-between; padding:13px 18px; border-bottom:1px solid var(--border); }
+.ag-row:last-child { border-bottom:none; }
+.ag-key { font-size:13px; color:var(--t3); }
+.ag-val { font-size:13px; color:var(--t1); font-weight:600; font-family:var(--mono); }

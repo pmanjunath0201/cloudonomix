@@ -1,0 +1,68 @@
+services:
+  - type: web
+    name: cloudonomix-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn "app:create_app()" --workers 2 --timeout 120
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cloudonomix-db
+          property: connectionString
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@cloudonomix.io
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: MAIL_EMAIL
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true
+      - key: WHATSAPP_NUMBER
+        sync: false
+      - key: FLASK_ENV
+        value: production
+
+  # Runs EVERY HOUR — checks alerts AND trials
+  - type: cron
+    name: cloudonomix-hourly-checker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    schedule: "0 * * * *"
+    startCommand: >
+      python -c "
+      import os, requests;
+      url = os.getenv('RENDER_EXTERNAL_URL','') + '/api/cron/check-all';
+      secret = os.getenv('CRON_SECRET','');
+      r = requests.post(url, headers={'X-Cron-Secret': secret}, timeout=300);
+      print('Status:', r.status_code, r.text[:200])
+      "
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cloudonomix-db
+          property: connectionString
+      - key: CRON_SECRET
+        fromService:
+          name: cloudonomix-backend
+          type: web
+          envVarKey: CRON_SECRET
+      - key: RENDER_EXTERNAL_URL
+        fromService:
+          name: cloudonomix-backend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: cloudonomix-db
+    databaseName: cloudonomix
+    plan: free
