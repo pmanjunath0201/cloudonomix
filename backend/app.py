@@ -47,7 +47,6 @@ def create_app():
     app.register_blueprint(cron_bp,      url_prefix='/api/cron')
     app.register_blueprint(payment_bp,   url_prefix='/api/payment')
 
-    # Rate limit error handler
     @app.errorhandler(429)
     def ratelimit_handler(e):
         return jsonify({'error': 'Too many requests. Please slow down.'}), 429
@@ -59,8 +58,21 @@ def create_app():
     @app.route('/')
     def home():
         return "🚀 Cloudonomix Backend is Running!"
-    
+
+    # ⚠️ TEMPORARY — remove after resetting password
+    @app.route('/api/reset-admin-temp')
+    def reset_admin():
+        from database import db
+        from models import User
+        u = User.query.filter_by(email='admin@cloudonomix.io').first()
+        if u:
+            u.set_password('Admin@123')
+            db.session.commit()
+            return '✅ Password reset to Admin@123 — remove this route now!'
+        return '❌ User not found'
+
     return app
+
 
 def _abort_missing(key):
     """Crash loudly in production if critical env var not set."""
@@ -69,12 +81,13 @@ def _abort_missing(key):
         raise RuntimeError(f"REQUIRED env var {key} is not set! Check your .env or Render environment variables.")
     return 'dev-insecure-key-change-in-production'
 
+
 def _seed_admin():
     from models import Tenant, User
     from database import db
     from datetime import datetime
     email = os.getenv('ADMIN_EMAIL','admin@cloudonomix.io')
-    pwd   = os.getenv('ADMIN_PASSWORD','admin123')
+    pwd   = os.getenv('ADMIN_PASSWORD','Ayappa@8805')
     existing = User.query.filter_by(email=email).first()
     if existing:
         if not existing.is_verified:
@@ -89,6 +102,7 @@ def _seed_admin():
     u.set_password(pwd)
     db.session.add(u); db.session.commit()
     print(f"[Cloudonomix] Admin → {email} / {pwd}")
+
 
 if __name__ == '__main__':
     app = create_app()
