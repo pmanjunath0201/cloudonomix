@@ -50,6 +50,13 @@ def register():
     db.session.add(user)
     db.session.commit()
 
+    # Create 30-day trial for new tenant
+    try:
+        from services.trial_service import create_trial
+        create_trial(tenant.id)
+    except Exception as e:
+        print(f"[Auth] Trial creation failed: {e}")
+
     # Send verification email
     try:
         from services.email_service import generate_verification_token, send_verification_email

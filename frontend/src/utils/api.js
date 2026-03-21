@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const http = axios.create({ baseURL: process.env.REACT_APP_API_URL + '/api' });
+const http = axios.create({ baseURL: (process.env.REACT_APP_API_URL || '') + '/api' });
 
 http.interceptors.request.use(c => {
   const t = localStorage.getItem('cx_token');

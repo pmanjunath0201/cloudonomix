@@ -6,7 +6,7 @@ from models import User, Tenant
 from database import db
 
 SECRET  = os.getenv('SECRET_KEY', 'dev-secret')
-EXPIRY  = int(os.getenv('JWT_EXPIRY_HOURS', 24))
+EXPIRY  = int(os.getenv('JWT_EXPIRY_HOURS', 168))  # 7 days default
 
 def generate_token(user_id, tenant_id):
     return jwt.encode(

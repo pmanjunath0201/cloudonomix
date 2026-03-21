@@ -41,6 +41,8 @@ function UsageBar({ label, current, max, color='var(--cyan)' }) {
   );
 }
 
+const WHATSAPP_NUM = process.env.REACT_APP_WHATSAPP || '918762483868';
+
 export default function Settings() {
   const loc      = useLocation();
   const nav      = useNavigate();
@@ -226,7 +228,7 @@ export default function Settings() {
               </p>
             </div>
             {planStatus?.next_plan && (
-              <a href={`https://wa.me/919XXXXXXXXX?text=I want to upgrade to ${planStatus.next_plan} plan`}
+              <a href={`https://wa.me/${WHATSAPP_NUM}?text=I want to upgrade to ${planStatus.next_plan} plan`}
                  target="_blank" rel="noreferrer"
                  style={{ padding:'10px 20px', background:'var(--green)', color:'#080c14', borderRadius:'9px', textDecoration:'none', fontWeight:'700', fontSize:'13px', fontFamily:'var(--mono)', whiteSpace:'nowrap' }}>
                 📱 Upgrade to {planStatus.next_plan?.charAt(0).toUpperCase() + planStatus.next_plan?.slice(1)} →
@@ -272,7 +274,7 @@ export default function Settings() {
                     <div style={{ fontFamily:'var(--mono)', fontSize:'15px', fontWeight:'700', color:PLAN_COLOR[p.plan], marginBottom:'4px' }}>{p.plan.charAt(0).toUpperCase()+p.plan.slice(1)}</div>
                     <div style={{ fontFamily:'var(--mono)', fontSize:'22px', fontWeight:'700', color:'var(--t1)', marginBottom:'8px' }}>₹{p.priceInr.toLocaleString()}<span style={{fontSize:'13px',color:'var(--t3)'}}>/mo</span></div>
                     <div style={{ fontSize:'11px', color:'var(--t3)', marginBottom:'14px' }}>${p.priceUsd}/mo for global clients</div>
-                    <a href={`https://wa.me/919XXXXXXXXX?text=Upgrade to ${p.plan}`} target="_blank" rel="noreferrer"
+                    <a href={`https://wa.me/${WHATSAPP_NUM}?text=Upgrade to ${p.plan}`} target="_blank" rel="noreferrer"
                        style={{ display:'block', padding:'9px', background:PLAN_COLOR[p.plan], color:'#080c14', borderRadius:'8px', textDecoration:'none', fontWeight:'700', fontSize:'12px', textAlign:'center', fontFamily:'var(--mono)' }}>
                       Upgrade via WhatsApp
                     </a>

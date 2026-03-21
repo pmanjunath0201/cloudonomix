@@ -4,6 +4,8 @@ For now: creates payment links that can be sent to clients.
 When Razorpay webhook fires (payment success), auto-upgrades plan.
 """
 import os
+import hmac
+import hashlib
 from flask import Blueprint, jsonify, request, g
 from auth_utils import require_auth, require_superadmin
 

@@ -12,7 +12,8 @@ def _verify_secret():
     """Verify the cron job secret to prevent unauthorized calls."""
     cron_secret = os.getenv('CRON_SECRET', '')
     if not cron_secret:
-        return True  # If no secret set, allow (dev mode)
+        # Block in production if secret not configured
+        return os.getenv('FLASK_ENV', 'development') != 'production'
     
     # Accept via header or query param
     provided = (request.headers.get('X-Cron-Secret') or 
